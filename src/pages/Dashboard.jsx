@@ -276,13 +276,13 @@ export default function Dashboard() {
             <Grid container spacing={3}>
               {filteredSubmissions.length > 0 ? (
                 filteredSubmissions.map((submission) => (
-                  <Grid item xs={12} key={submission._id}>
+                 
                     <SubmissionCard 
                       submission={submission}
                       sortOption={sortOption}
                       onSortChange={(e) => setSortOption(e.target.value)}
                     />
-                  </Grid>
+                 
                 ))
               ) : (
                 <Grid item xs={12}>

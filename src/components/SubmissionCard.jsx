@@ -97,7 +97,8 @@ export default function SubmissionCard({ submission, sortOption, onSortChange })
         borderColor: 'divider',
         '&:hover': {
           boxShadow: '0 12px 24px rgba(0,0,0,0.12)'
-        }
+        },
+        maxWidth:'600px'
       }}>
         
 
