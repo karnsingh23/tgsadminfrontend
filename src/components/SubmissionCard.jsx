@@ -40,31 +40,56 @@ import {
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-
-// Configure PDF worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+
 
 export default function SubmissionCard({ submission, sortOption, onSortChange }) {
   const [previewImage, setPreviewImage] = useState(null);
   const [previewPdf, setPreviewPdf] = useState(null);
+  const [loadingPdf, setLoadingPdf] = useState(false);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
+
+  const fetchPdfBlob = async (file) => {
+  setLoadingPdf(true);
+  try {
+    const response = await fetch(`https://tgsadminbackend.onrender.com/${file.path.replace(/\\/g, '/')}`);
+    if (!response.ok) throw new Error('Failed to fetch PDF');
+    const blob = await response.blob();
+    
+    const blobUrl = URL.createObjectURL(blob);
+    console.log("Bloburl:", blobUrl);
+    setPreviewPdf(blobUrl);
+    console.log("Blob URL set to:", blobUrl);
+
+    setPageNumber(1);
+  } catch (err) {
+    console.error('PDF Blob fetch error:', err);
+  } finally {
+    setLoadingPdf(false);
+  }
+};
 
   const handleImageClick = (file) => {
     setPreviewImage(`https://tgsadminbackend.onrender.com/${file.path.replace(/\\/g, '/')}`);
     setZoomLevel(1);
   };
 
-  const handlePdfClick = (file) => {
-    setPreviewPdf(`https://tgsadminbackend.onrender.com/${file.path.replace(/\\/g, '/')}`);
-    setPageNumber(1);
-  };
+ const handlePdfClick = (file) => {
+  fetchPdfBlob(file);
+};
 
-  const handleClosePreview = () => {
-    setPreviewImage(null);
-    setPreviewPdf(null);
-  };
+
+ const handleClosePreview = () => {
+  if (previewPdf?.startsWith('blob:')) {
+    URL.revokeObjectURL(previewPdf);
+  }
+  setPreviewImage(null);
+  setPreviewPdf(null);
+};
+
 
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 3));
@@ -84,8 +109,6 @@ export default function SubmissionCard({ submission, sortOption, onSortChange })
 
   return (
     <>
-     
-
       <Card sx={{
         width: '100%',
         borderRadius: '16px',
@@ -405,22 +428,15 @@ export default function SubmissionCard({ submission, sortOption, onSortChange })
           p: 3,
           overflowY: 'auto'
         }}>
-          <Document
-            file={previewPdf}
-            onLoadSuccess={onDocumentLoadSuccess}
-            loading={
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                <Typography>Loading PDF...</Typography>
-              </Box>
-            }
-          >
-            <Page 
-              pageNumber={pageNumber} 
-              width={800} 
-              renderTextLayer={false}
-              renderAnnotationLayer={false}
-            />
-          </Document>
+         {loadingPdf ? (
+  <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+    <Typography>Loading PDF...</Typography>
+  </Box>
+) : (
+<iframe src={previewPdf} width="100%" height="600px" />
+
+)}
+
         </DialogContent>
         <DialogActions sx={{
           display: 'flex',
@@ -429,27 +445,7 @@ export default function SubmissionCard({ submission, sortOption, onSortChange })
           borderTop: '1px solid',
           borderColor: 'divider'
         }}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Button 
-              variant="outlined" 
-              size="small" 
-              onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
-              disabled={pageNumber <= 1}
-            >
-              Previous
-            </Button>
-            <Typography variant="body2">
-              Page {pageNumber} of {numPages || '--'}
-            </Typography>
-            <Button 
-              variant="outlined" 
-              size="small" 
-              onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages || 1))}
-              disabled={pageNumber >= (numPages || 1)}
-            >
-              Next
-            </Button>
-          </Stack>
+          
           <Button 
             variant="contained" 
             size="small" 

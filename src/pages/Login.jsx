@@ -34,7 +34,7 @@ export default function Login({ onClose }) {
     setError(null);
     
     try {
-      const res = await axios.post('https://tgsadminbackend.onrender.com/api/admin/login', { 
+      const res = await axios.post('https://tgsadminbackend.onrender.com/admin/login', { 
         username, 
         password 
       });
