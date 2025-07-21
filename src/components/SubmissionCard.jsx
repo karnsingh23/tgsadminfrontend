@@ -55,7 +55,8 @@ export default function SubmissionCard({ submission, sortOption, onSortChange })
   const fetchPdfBlob = async (file) => {
   setLoadingPdf(true);
   try {
-    const response = await fetch(`https://tgsadminbackend.onrender.com/${file.path.replace(/\\/g, '/')}`);
+    
+    const response = await fetch(file.path);
     if (!response.ok) throw new Error('Failed to fetch PDF');
     const blob = await response.blob();
     
@@ -73,7 +74,7 @@ export default function SubmissionCard({ submission, sortOption, onSortChange })
 };
 
   const handleImageClick = (file) => {
-    setPreviewImage(`https://tgsadminbackend.onrender.com/${file.path.replace(/\\/g, '/')}`);
+    setPreviewImage(file.path);
     setZoomLevel(1);
   };
 
