@@ -299,7 +299,7 @@ export default function SubmissionCard({ submission, sortOption, onSortChange })
                       <Tooltip title="Download">
                         <IconButton 
                           size="small" 
-                          onClick={() => window.open(`https://tgsadminbackend.onrender.com/${file.path.replace(/\\/g, '/')}`, '_blank')}
+                          onClick={() => window.open(file.path)}
                         >
                           <DownloadIcon sx={{ fontSize: 18 }} />
                         </IconButton>
